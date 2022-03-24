@@ -1,0 +1,63 @@
+body {
+    background-color: #3c3c3c;
+}
+
+.APPDAMEGAME_CONTAINER {
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    top: 2%;
+    /* bottom: 2%; */
+    border: 1px solid #e1e1e1;
+    background-color: #e1e1e1;
+    border-radius: 14px;
+}
+
+.APPDAMEGAME_TITLE {
+    background-color: #ccb075;
+    padding: 7px;
+    color: #0e6315;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 1px dotted #3c3c3c;
+    border-radius: 14px;
+    text-align: right;
+}
+
+.APPDAMEGAME_RULES {
+    margin-left: 7%;
+    margin-right: 7%;
+    color: #3c3c3c;
+}
+
+.APPDAMEGAME_RULES p {
+    color: rgb(38, 26, 148);
+    margin: 3px 0px;
+}
+
+.APPDAMEGAME_RULES h4 {
+    color: rgb(24, 22, 44);
+    text-decoration: underline dotted;
+    margin: 1px;
+}
+
+.APPDAMEGAME_BODY {
+    margin: 15px 20px;
+}
+
+.APPDAMEGAME_FOOTER{
+    margin-bottom: 15px;
+    color: #3c3c3c;
+    margin-left: 7%;
+    margin-right: 7%;
+}
+
+/*Pour mes tests*/
+.DAMEGAME_BODY{
+    display: grid;
+    grid-template-columns: repeat(10, 50px);
+    grid-template-rows: repeat(10, 50px);
+    
+    padding-left: 25%;
+    padding-right: 25%;
+}
