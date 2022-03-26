@@ -1,11 +1,30 @@
 .DAMEGAME_BODY div {
-    border: 1px solid rgb(204, 194, 194);
+    border: 1px solid #636161;
+
 }
 
 .ITEM_ {
     background-color: #636161;
+
 }
 
 .ITEM {
     background-color: #ffffff;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+.ITEM_DAME_BLUE {
+    /* background-color: #4fb1eb; */
+    background-color: blue;
+    animation: blinker 3.75s linear infinite;
+}
+
+.ITEM_DAME_RED {
+    background-color: red;
+    animation: blinker 3.75s linear infinite;
 }

@@ -8,6 +8,10 @@ export interface I_APP_DAME_GAME_PROPS_STATE{
     // 1: joueur 1, id de la case, 3:status dame, 
     // 2: Joueur 2 ...
     selectedPion: number;
+    cellRulesMapDRL: number[][];
+    cellRulesMapDLR: number[][];
+    damePlace:number[][];
+
     
     //Elements type GLOBAL
     APP_GLOBAL_DATA: I_APP_GLOBAL_DATA;
@@ -25,4 +29,5 @@ export interface I_APP_GLOBAL_FUNCTIONS{
     onPlayGame?: Function;
     createMap?: Function;
     movePion?: Function;
+    createRules?: Function;
 }

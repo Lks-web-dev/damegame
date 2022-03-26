@@ -43,6 +43,7 @@ body {
 
 .APPDAMEGAME_BODY {
     margin: 15px 20px;
+    
 }
 
 .APPDAMEGAME_FOOTER{
@@ -53,8 +54,11 @@ body {
 }
 
 /*Pour mes tests*/
-.DAMEGAME_BODY{
+.APPDAMEGAME_DAMEBODY{
     display: grid;
+    background-color: #948f8f;
+    padding-top: 6px;
+    padding-bottom: 6px;
     grid-template-columns: repeat(10, 50px);
     grid-template-rows: repeat(10, 50px);
     

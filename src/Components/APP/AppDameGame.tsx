@@ -1,7 +1,9 @@
 import * as React from "react";
 // Import de ma CSS
 import "../../CSS/appDameGame.css"
-import { rulesVerificator } from "../../TOOLS/verificator";
+import { searchCellTab } from "../../TOOLS/seachCellTab";
+import { rulesVerificator } from "../../TOOLS/rulesVerificator";
+//import { rulesVerificator } from "../../TOOLS/verificator";
 import { I_APP_DAME_GAME_PROPS_STATE, I_APP_GLOBAL_DATA, I_APP_GLOBAL_FUNCTIONS } from "../Interfaces/IAppDameGame";
 import { DAME_GAME } from "../ITEMS/DameGame";
 
@@ -15,31 +17,38 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
 
             playGameStatus: false,
             selectedPion: 999,
+            cellRulesMapDLR: [],
+            cellRulesMapDRL: [],
+
+            damePlace:[
+                [1,3,5,7,9],
+                [90,92,94,96,98]
+            ],
 
             matrixDownLeftToRight: [
                 //bas G => D
-                [98,89],
-                [96,87,78,69],
-                [94,85,76,67,58,49],
-                [92,83,74,65,56,47,38,29],
-                [90,81,72,63,54,45,36,27,18,9],
-                [70,61,52,43,34,25,16,7],
-                [50,41,32,23,14,5],
-                [30,21,12,3],
-                [10,1]
+                [98, 89],
+                [96, 87, 78, 69],
+                [94, 85, 76, 67, 58, 49],
+                [92, 83, 74, 65, 56, 47, 38, 29],
+                [90, 81, 72, 63, 54, 45, 36, 27, 18, 9],
+                [70, 61, 52, 43, 34, 25, 16, 7],
+                [50, 41, 32, 23, 14, 5],
+                [30, 21, 12, 3],
+                [10, 1]
             ],
 
             matrixDownRightToLeft: [
                 //bas D => G
                 [90],
-                [92,81,70],
-                [94,83,72,61,50],
-                [96,85,74,63,52,41,30],
-                [98,87,76,65,54,43,32,21,10],
-                [89,78,67,56,45,34,23,12,1],
-                [69,58,47,36,25,14,3],
-                [49,38,27,16,5],
-                [29,18,7],
+                [92, 81, 70],
+                [94, 83, 72, 61, 50],
+                [96, 85, 74, 63, 52, 41, 30],
+                [98, 87, 76, 65, 54, 43, 32, 21, 10],
+                [89, 78, 67, 56, 45, 34, 23, 12, 1],
+                [69, 58, 47, 36, 25, 14, 3],
+                [49, 38, 27, 16, 5],
+                [29, 18, 7],
                 [9]
             ],
             //Mes données globales
@@ -57,20 +66,18 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
         this.onPlayGame = this.onPlayGame.bind(this);
         this.createMap = this.createMap.bind(this);
         this.movePion = this.movePion.bind(this);
+        this.createRules = this.createRules.bind(this);
     }
 
     movePion(idCell: number) {
         let moving: I_APP_GLOBAL_DATA = this.state.APP_GLOBAL_DATA;
         let idSelected: number = this.state.selectedPion; //permet de garder l'état de la sélection
-        let matrixbRToL: number[][] = this.state.matrixDownRightToLeft; //Contient les id des cellule et le sens de déplacement
-        let matrixbLToR: number[][] = this.state.matrixDownLeftToRight; //Contient les id des cellule et le sens de déplacement
+
         let transfertData: any[] = []; //Permet de transvaser des données
         //Le vérificator contient 3 informations
         //[0] à true : je peux déplacer le pion
         //[1] est l'id du pion adverse à manger
         //[3] ne nous sert pas mais est hérité du traitement des fonction "rulesVerificator"
-        let verificator: any[]=[];
-
 
         //On sélectionne une première fois le pion à déplacer
         if (idSelected === 999) { //999 peut être assimilé à "undefined"
@@ -89,10 +96,18 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
             })
 
         } else if (idCell !== idSelected) { //On selectionne une deuxième fois sur la case visée
-            
-            verificator = rulesVerificator(matrixbLToR, matrixbRToL, idCell, idSelected, this.state.APP_GLOBAL_DATA.cadrillageDameMap.map(t=>t));
-            //console.log(verificator);
-            if (verificator[0]) {
+            let verifResult: any[] = [];
+            let CellRulesDLR: number[][] = this.state.cellRulesMapDLR;
+            let CellRulesDRL: number[][] = this.state.cellRulesMapDRL;
+
+            verifResult = rulesVerificator(
+                idCell,
+                idSelected,
+                CellRulesDLR,
+                CellRulesDRL,
+                moving.cadrillageDameMap);
+            //verificator = rulesVerificator(matrixbLToR, matrixbRToL, idCell, idSelected, this.state.APP_GLOBAL_DATA.cadrillageDameMap.map(t=>t));
+            if (verifResult[0]) {
                 (moving.cadrillageDameMap).forEach(search => {
                     if (search.id === idSelected) {
                         (search.player === 1) ? transfertData[0] = "blue" : transfertData[0] = "red";
@@ -107,17 +122,44 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
                     }
 
                 });
+
                 (moving.cadrillageDameMap).forEach(search => {
                     if (search.id === idCell) {
+                        
                         search.couleurDuJoueur = transfertData[0];
                         search.player = transfertData[1];
-                        search.priseAdversaire = transfertData[2];
+                        if(search.player === 1){
+                            if((this.state.damePlace[0]).includes(idCell)){
+                                search.statusDame = true;
+                                search.Item = "ITEM_DAME_BLUE";
+                                search.couleurDuJoueur = "black";
+                            }
+                        }else{
+                            if((this.state.damePlace[1]).includes(idCell)){
+                                search.statusDame = true;
+                                search.Item = "ITEM_DAME_RED";
+                                search.couleurDuJoueur = "black";
+                            }
+                        }
+                        //search.priseAdversaire = transfertData[2];
                         search.statusDame = transfertData[3];
                     }
-                })
+                });
+
+                
+                //Pion récupéré par l'adversaire
+                if(verifResult[1]){
+                    
+                    (moving.cadrillageDameMap).forEach(search => {
+                        if (search.id === verifResult[2]) {
+                            search.player = 0;
+                        }
+                    })
+                }
+                
                 this.setState({ APP_GLOBAL_DATA: moving, selectedPion: 999 })
             }
-            
+
         } else { //On déselectionne le pion
             (moving.cadrillageDameMap).forEach(search => {
                 if (search.id === idSelected) {
@@ -133,19 +175,21 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
 
     }
 
+    //Commencer le jeu
     onPlayGame() {
         let statutGame: boolean = this.state.playGameStatus;
         statutGame = true;
         this.createMap();
+        this.createRules(); //On crée le tableau qui va conditionner le déplacement des pions
         this.setState({ playGameStatus: statutGame });
     }
 
+    //Creation de la Map
     createMap() {
         let cadrillage: I_APP_GLOBAL_DATA = this.state.APP_GLOBAL_DATA;
         let multiplicateur: number = 1;
         let playerDameGame: number = 0;
         let color: string = "";
-        //let celluleActive:number;
         let itemBarStyle: string = "ITEM_";
 
         for (let i = 0; i < 100; i++) {
@@ -180,7 +224,7 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
                 Item: itemBarStyle,
                 player: playerDameGame, // Permet de placer un joueur
                 couleurDuJoueur: color, // 8 couleurs au choix seront proposées et seront définies ailleurs
-                priseAdversaire: false, // true: pris par l'adversaire, false: l'inverse
+                //priseAdversaire: false, // true: pris par l'adversaire, false: l'inverse
                 statusDame: false //Détermine si on est en Dame ou pas
             });
         }
@@ -188,12 +232,26 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
         this.setState({ APP_GLOBAL_DATA: cadrillage });
 
     }
+
+    //Création de la règle d'utilisation
+    createRules() {
+        let tabCellRulesMapDLR: number[][] = this.state.cellRulesMapDLR; //DLR Down Left to Right
+        let tabCellRulesMapDRL: number[][] = this.state.cellRulesMapDRL;
+
+        for (let index = 0; index < 100; index++) {
+            tabCellRulesMapDLR.push(searchCellTab(this.state.matrixDownLeftToRight, index));
+            tabCellRulesMapDRL.push(searchCellTab(this.state.matrixDownRightToLeft, index));
+        }
+        //console.log("valeur tab:" + tabCellRulesMapDLR )
+        this.setState({ cellRulesMapDLR: tabCellRulesMapDLR, cellRulesMapDRL: tabCellRulesMapDRL });
+    }
     //Montage des composants
     componentDidMount() {
         let tmpAPPFUNCTIONS: I_APP_GLOBAL_FUNCTIONS = {
             onPlayGame: this.onPlayGame,
             createMap: this.createMap,
-            movePion: this.movePion
+            movePion: this.movePion,
+            createRules: this.createRules
         }
         this.setState({ APP_GLOBAL_FUNCTIONS: tmpAPPFUNCTIONS })
     }
@@ -220,7 +278,7 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
                 }
                 {
                     this.state.playGameStatus &&
-                    <div className="DAMEGAME_BODY">
+                    <div className="APPDAMEGAME_DAMEBODY">
                         {
                             this.state.APP_GLOBAL_DATA.cadrillageDameMap.map(t => {
                                 return < DAME_GAME
@@ -240,3 +298,4 @@ export class APP_DAME_GAME extends React.Component<{}, I_APP_DAME_GAME_PROPS_STA
         </div>
     }
 }
+

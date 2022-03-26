@@ -13,6 +13,6 @@ export interface I_DAME_GAME {// On gère les ITEMS
     Item: string;
     player: number; // Permet de savoir à qui le tour. Par défaut, c'est le joueur du bas...
     couleurDuJoueur: string; // 8 couleurs au choix seront proposées et seront définies ailleurs
-    priseAdversaire: boolean; // true: pris par l'adversaire, false: l'inverse
+    priseAdversaire?: boolean; // true: pris par l'adversaire, false: l'inverse
     statusDame: boolean; //Détermine si on est en Dame ou pas
 }
